@@ -27,7 +27,6 @@ class Policy3(Node):
     def send_message(self, val):
         msg = Image()
         msg.data = val.tobytes()
-        msg.encoding = '64FC1'
         self.publisher_.publish(msg)
 
 

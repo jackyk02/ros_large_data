@@ -30,7 +30,7 @@ class Env(Node):
         self.start_time = None
         self.prev_time = None
 
-        # Create the 2D NumPy array
+        # Create the NumPy array
         val = np.zeros(13107200)
         self.send_message(val)
 
@@ -58,7 +58,6 @@ class Env(Node):
     def send_message(self, val):
         msg = Image()
         msg.data = val.tobytes()
-        msg.encoding = '64FC1'
         self.publisher.publish(msg)
 
 
