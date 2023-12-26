@@ -5,6 +5,7 @@ from sensor_msgs.msg import Image
 # Preamble
 import numpy as np
 import time
+import pickle
 
 
 class Policy4(Node):
@@ -20,13 +21,13 @@ class Policy4(Node):
         self.subscription  # prevent unused variable warning
 
     def listener_callback(self, msg):
-        received_np_array = np.frombuffer(msg.data, dtype=np.float64)
+        received_np_array = pickle.loads(msg.data)
         time.sleep(0.5)
-        self.send_message(msg.data)
+        self.send_message(received_np_array)
 
     def send_message(self, val):
         msg = Image()
-        msg.data = val.tobytes()
+        msg.data = pickle.dumps(val)
         self.publisher_.publish(msg)
 
 

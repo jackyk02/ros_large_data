@@ -4,6 +4,7 @@ from rclpy.node import Node
 from message_filters import TimeSynchronizer, Subscriber
 import numpy as np
 from sensor_msgs.msg import Image
+import pickle
 
 
 class Env(Node):
@@ -31,12 +32,14 @@ class Env(Node):
         self.prev_time = None
 
         # Create the NumPy array
-        val = np.zeros(13107200)
+        val = np.ones(1310720)
         self.send_message(val)
 
     def callback(self, p1, p2, p3, p4):
-        d1, d2, d3, d4 = np.frombuffer(p1.data, dtype=np.float64), np.frombuffer(
-            p2.data, dtype=np.float64), np.frombuffer(p3.data, dtype=np.float64), np.frombuffer(p4.data, dtype=np.float64)
+        d1 = pickle.loads(p1.data)
+        d2 = pickle.loads(p2.data)
+        d3 = pickle.loads(p3.data)
+        d4 = pickle.loads(p4.data)
 
         # first round
         if int(self.round_num) == 0:
@@ -50,14 +53,14 @@ class Env(Node):
         # print Time Taken
         cur_time = time.time()
         print(f"Time taken: {cur_time - self.start_time:.2f} seconds")
-        print(f"Overhead: {cur_time - self.prev_time - 0.5:.2f} seconds")
+        print(f"Overhead: {cur_time - self.prev_time - 0.5:.2f} seconds\n")
         self.prev_time = cur_time
 
         self.send_message(d1)
 
     def send_message(self, val):
         msg = Image()
-        msg.data = val.tobytes()
+        msg.data = pickle.dumps(val)
         self.publisher.publish(msg)
 
 
