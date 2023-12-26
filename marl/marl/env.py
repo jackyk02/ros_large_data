@@ -28,35 +28,37 @@ class Env(Node):
         # Simulation
         self.round_num = 0
         self.start_time = None
+        self.prev_time = None
 
         # Create the 2D NumPy array
-        self.val = np.zeros(13107200)
-
-        self.send_message()
+        val = np.zeros(13107200)
+        self.send_message(val)
 
     def callback(self, p1, p2, p3, p4):
+        d1, d2, d3, d4 = np.frombuffer(p1.data, dtype=np.float64), np.frombuffer(
+            p2.data, dtype=np.float64), np.frombuffer(p3.data, dtype=np.float64), np.frombuffer(p4.data, dtype=np.float64)
 
         # first round
         if int(self.round_num) == 0:
             self.start_time = time.time()
+            self.prev_time = self.start_time
 
         # print round number
         print("Episode: "+str(self.round_num))
         self.round_num += 1
 
         # print Time Taken
-        print(f"Time taken: {time.time() - self.start_time:.2f} seconds")
+        cur_time = time.time()
+        print(f"Time taken: {cur_time - self.start_time:.2f} seconds")
+        print(f"Overhead: {cur_time - self.prev_time - 0.5:.2f} seconds")
+        self.prev_time = cur_time
 
-        self.send_message()
+        self.send_message(d1)
 
-    def send_message(self):
+    def send_message(self, val):
         msg = Image()
-        # Assuming self.state is a 2D array, we need to convert it to a 1D array for Image
-        msg.data = self.val.tobytes()
-        # You will need to set height, width, and encoding correctly
-        msg.height = 50
-        msg.width = 50
-        msg.encoding = '32FC1'  # For a single-channel 32-bit float
+        msg.data = val.tobytes()
+        msg.encoding = '64FC1'
         self.publisher.publish(msg)
 
 
